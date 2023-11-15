@@ -13,20 +13,17 @@ app.post("/weather", async (req, res) => {
 
   if (!cityName) {
     return res.status(404).send({ weatherText: "City is not found!" });
-  } else {
-    const cityData = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${keys.API_KEY}`);
-    const modifiedCityData = await cityData.json();
-
-    const lat = modifiedCityData.coord.lat;
-    const lon = modifiedCityData.coord.lon;
-
-    const weather = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${keys.API_KEY}`);
-    const weatherData = await weather.json();
-
-    const todaysWeather = { cityName: cityName, temperature: weatherData.main.temp };
-
-    return res.status(200).send(todaysWeather);
   }
+
+  const cityData = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${keys.API_KEY}`);
+
+  if (cityData.status == 404) {
+    return res.status(404).send({ weatherText: "Where is this city. Are you sure it's on the planet?" });
+  }
+
+  const modifiedCityData = await cityData.json();
+  const todaysWeather = { cityName: cityName, temperature: modifiedCityData.main.temp };
+  return res.status(200).send(todaysWeather);
 });
 
 export default app;
